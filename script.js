@@ -1,20 +1,18 @@
-const sayHello = () => alert('Hello world!');
-sayHello();
+//zadanie 1
+const string1 = 'Hello';
+const string2 = 'World';
+const result = `${string1} ${string2}`;
 
-let greeting = 'Hello User!';
-function greetWorld(isGreeting) {
-    if (isGreeting) {
-        let greeting = 'Hello World!';
-        return greeting;
-    }
-    return greeting;
-}
-greetWorld(false); // 'Hello User!'
+//zadanie 2
+const multiply = (x, y = 1) => x * y;
 
-{  // rozpoczęcie bloku
-    let hello = 'test';
-}  // zakończenie bloku
+//zadanie 3
+const average = (...args) => args.reduce((prev, curr) => prev + curr) / args.length;
 
-function sayHelloTo(person) {
-    console.log(`Hello, ${person}, nice to meet you!`);
-}
+//zadanie 4
+const grades = [1, 5, 5, 5, 4, 3, 3, 2, 1];
+const avg = average(...grades);
+
+//zadanie 5
+const arr = [1, 4, 'Iwona', false, 'Nowak'];
+const [,,firstname,,lastname] = arr;
