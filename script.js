@@ -53,6 +53,35 @@ class Stopwatch {
 	}
 }
 
+//klasa listy czasow
+class TimeList {
+    constructor(display) {
+        this.display = display;
+        this.clear();
+        this.print();
+    }
+
+	//czysci liste zapamietanych czasow
+	clear() {
+        this.items = [];
+    }
+	//wyswietla zapamietane czasy
+	print() {
+		this.display.innerHTML = '';
+		this.items.forEach((item) => {
+			this.display.innerHTML += `<li>${stopwatch.format(item)}</li>`;
+		});
+	}
+	//zapisuje czas na liscie
+	addItem(item) {
+		this.items.push({
+			minutes: item.minutes,
+			seconds: item.seconds,
+			miliseconds: item.miliseconds
+		});
+	}
+}
+
 function pad0(value) {
 	let result = value.toString();
 	if (result.length < 2) {
@@ -65,6 +94,10 @@ const stopwatch = new Stopwatch(
 	document.querySelector('.stopwatch')
 );
 
+const timeList = new TimeList(
+	document.querySelector('.results')
+);
+
 let startButton = document.getElementById('start');
 startButton.addEventListener('click', () => stopwatch.start());
 
@@ -75,4 +108,16 @@ let resetButton = document.getElementById('reset');
 resetButton.addEventListener('click', () => {
 	stopwatch.reset();
 	stopwatch.print();
+});
+
+let saveButton = document.getElementById('save');
+saveButton.addEventListener('click', () => {
+	timeList.addItem(stopwatch.times);
+	timeList.print();
+});
+
+let resetListButton = document.getElementById('resetList');
+resetListButton.addEventListener('click', () => {
+	timeList.clear();
+	timeList.print();
 });

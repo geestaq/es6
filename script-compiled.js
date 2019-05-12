@@ -76,6 +76,54 @@ var Stopwatch = function () {
 	return Stopwatch;
 }();
 
+//klasa listy czasow
+
+
+var TimeList = function () {
+	function TimeList(display) {
+		_classCallCheck(this, TimeList);
+
+		this.display = display;
+		this.clear();
+		this.print();
+	}
+
+	//czysci liste zapamietanych czasow
+
+
+	_createClass(TimeList, [{
+		key: 'clear',
+		value: function clear() {
+			this.items = [];
+		}
+		//wyswietla zapamietane czasy
+
+	}, {
+		key: 'print',
+		value: function print() {
+			var _this2 = this;
+
+			this.display.innerHTML = '';
+			this.items.forEach(function (item) {
+				_this2.display.innerHTML += '<li>' + stopwatch.format(item) + '</li>';
+			});
+		}
+		//zapisuje czas na liscie
+
+	}, {
+		key: 'addItem',
+		value: function addItem(item) {
+			this.items.push({
+				minutes: item.minutes,
+				seconds: item.seconds,
+				miliseconds: item.miliseconds
+			});
+		}
+	}]);
+
+	return TimeList;
+}();
+
 function pad0(value) {
 	var result = value.toString();
 	if (result.length < 2) {
@@ -85,6 +133,8 @@ function pad0(value) {
 }
 
 var stopwatch = new Stopwatch(document.querySelector('.stopwatch'));
+
+var timeList = new TimeList(document.querySelector('.results'));
 
 var startButton = document.getElementById('start');
 startButton.addEventListener('click', function () {
@@ -100,4 +150,16 @@ var resetButton = document.getElementById('reset');
 resetButton.addEventListener('click', function () {
 	stopwatch.reset();
 	stopwatch.print();
+});
+
+var saveButton = document.getElementById('save');
+saveButton.addEventListener('click', function () {
+	timeList.addItem(stopwatch.times);
+	timeList.print();
+});
+
+var resetListButton = document.getElementById('resetList');
+resetListButton.addEventListener('click', function () {
+	timeList.clear();
+	timeList.print();
 });
