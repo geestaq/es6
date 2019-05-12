@@ -1,0 +1,55 @@
+@font-face{
+	font-family: 'Digital';
+	src: url('fonts/digital-7.mono.ttf');
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	background-color: #00211e;
+	margin: 0;
+	padding: 0;
+}
+
+nav {
+	background-color: #033832;
+}
+
+.wrapper {
+	text-align: center;
+}
+
+.results,
+.stopwatch {
+	font-family: 'Digital', sans-serif;
+}
+
+.stopwatch {
+	font-size: 72px;
+	color: #00c4b0;
+	background-color: #033832;
+	display: inline-block;
+	padding: .3em .5em;
+}
+
+.button {
+	color: #007064;
+	padding: .5em 1em;
+	margin: .5em 0;
+	border: 1px solid #007064;
+	text-decoration: none;
+	display: inline-block;
+}
+
+.button:hover {
+	color: #00c4b0;
+	border: 1px solid #00c4b0;
+}
+
+.results {
+	list-style-type: none;
+	margin: 0;
+	margin-top: 1em;
+	padding: 0;
+	font-size: 32px;
+	color: #00c4b0;
+}
