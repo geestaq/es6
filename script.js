@@ -50,7 +50,7 @@ class Stopwatch {
 	stop() {
 	    this.running = false;
 	    clearInterval(this.watch);
-	}	
+	}
 }
 
 function pad0(value) {
@@ -70,3 +70,9 @@ startButton.addEventListener('click', () => stopwatch.start());
 
 let stopButton = document.getElementById('stop');
 stopButton.addEventListener('click', () => stopwatch.stop());
+
+let resetButton = document.getElementById('reset');
+resetButton.addEventListener('click', () => {
+	stopwatch.reset();
+	stopwatch.print();
+});
