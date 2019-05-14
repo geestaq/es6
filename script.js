@@ -1,84 +1,124 @@
-class Stopwatch {
-    constructor(display) {
-        this.running = false;
-        this.display = display;
-        this.reset();
-        this.print(this.times);
-    }
-
-	reset() {
-        this.times = {
-            minutes: 0,
-            seconds: 0,
-            miliseconds: 0
-        };
-    }
-
-	print() {
-		this.display.innerText = this.format(this.times);
-	}
-
-	format(times) {
-		return `${pad0(times.minutes)}:${pad0(times.seconds)}:${pad0(Math.floor(times.miliseconds))}`;
-	}
-
-	start() {
-	    if (!this.running) {
-	        this.running = true;
-	        this.watch = setInterval(() => this.step(), 10);
-	    }
-	}
-
-	step() {
-	    if (!this.running) return;
-	    this.calculate();
-	    this.print();
-	}
-
-	calculate() {
-	    this.times.miliseconds += 1;
-	    if (this.times.miliseconds >= 100) {
-	        this.times.seconds += 1;
-	        this.times.miliseconds = 0;
-	    }
-	    if (this.times.seconds >= 60) {
-	        this.times.minutes += 1;
-	        this.times.seconds = 0;
-	    }
-	}
-
-	stop() {
-	    this.running = false;
-	    clearInterval(this.watch);
+class App extends React.Component {
+	render() {
+		return (
+			<Stopwatch/>
+		);
 	}
 }
 
-//klasa listy czasow
-class TimeList {
-    constructor(display) {
-        this.display = display;
-        this.clear();
-        this.print();
-    }
-
-	//czysci liste zapamietanych czasow
-	clear() {
-        this.items = [];
-    }
-	//wyswietla zapamietane czasy
-	print() {
-		this.display.innerHTML = '';
-		this.items.forEach((item) => {
-			this.display.innerHTML += `<li>${stopwatch.format(item)}</li>`;
+class Stopwatch extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			runing: false,
+			times: {
+				minutes: 3,
+				seconds: 55,
+				miliseconds: 0
+			},
+			time: null
+		};
+		//referencja do obiektu TimeList
+		this.child = React.createRef();
+	}
+	save(time) {
+		this.setState({
+			time //time: time
 		});
 	}
-	//zapisuje czas na liscie
-	addItem(item) {
-		this.items.push({
-			minutes: item.minutes,
-			seconds: item.seconds,
-			miliseconds: item.miliseconds
+	reset(e) {
+		this.setState({
+			times: {
+				minutes: 0,
+				seconds: 0,
+				miliseconds: 0
+			}
 		});
+	}
+	start(e) {
+		if (!this.state.running) {
+			this.setState({
+				running: true
+			});
+			this.watch = setInterval(() => this.step(), 10);
+		}
+	}
+	stop(e) {
+		if(this.state.running) {
+			clearInterval(this.watch);
+			this.setState({
+				running: false
+			});
+		}
+	}
+	step() {
+	    if (!this.state.running) return;
+		let newTick = this.state.times;
+		newTick.miliseconds++;
+	    if (newTick.miliseconds >= 100) {
+	        newTick.seconds += 1;
+	        newTick.miliseconds = 0;
+	    }
+	    if (newTick.seconds >= 60) {
+	        newTick.minutes += 1;
+	        newTick.seconds = 0;
+	    }
+		this.setState({
+			times: newTick
+		});
+	}
+	print() {
+		return `${pad0(this.state.times.minutes)}:${pad0(this.state.times.seconds)}:${pad0(Math.floor(this.state.times.miliseconds))}`;
+	}
+	resetList() {
+		this.child.current.clear();
+	}
+	render() {
+		return (
+			<div>
+				<nav className='controls'>
+					<a href='#' className='button' id='start' onClick={this.start.bind(this)}>Start</a>
+					<a href='#' className='button' id='stop' onClick={this.stop.bind(this)}>Stop</a>
+					<a href='#' className='button' id='reset' onClick={this.reset.bind(this)}>Reset</a>
+					<a href='#' className='button' id='save' onClick={() => this.save(this.print())}>Save</a>
+					<a href='#' className='button' id='resetList' onClick={this.resetList.bind(this)}>Reset list</a>
+				</nav>
+				<div className='stopwatch'>{this.print()}</div>
+				<TimeList time={this.state.time} ref={this.child}/>
+			</div>
+		);
+	}
+}
+
+class TimeList extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			items: []
+		}
+		//kontekst
+		this.clear = this.clear.bind(this);
+	}
+	componentDidUpdate(prevProps) {
+		if(prevProps.time != this.props.time) {
+			this.setState({
+				items: [...this.state.items, this.props.time]
+			});
+		}
+	}
+	clear(e) {
+		this.setState({
+			items: []
+		});
+	}
+	render() {
+		return (
+			<ul className='results'>
+			{
+				this.state.items.map((item, index) => (<li key={index}>{item}</li>))
+			}
+			</ul>
+		);
 	}
 }
 
@@ -90,34 +130,5 @@ function pad0(value) {
 	return result;
 }
 
-const stopwatch = new Stopwatch(
-	document.querySelector('.stopwatch')
-);
-
-const timeList = new TimeList(
-	document.querySelector('.results')
-);
-
-let startButton = document.getElementById('start');
-startButton.addEventListener('click', () => stopwatch.start());
-
-let stopButton = document.getElementById('stop');
-stopButton.addEventListener('click', () => stopwatch.stop());
-
-let resetButton = document.getElementById('reset');
-resetButton.addEventListener('click', () => {
-	stopwatch.reset();
-	stopwatch.print();
-});
-
-let saveButton = document.getElementById('save');
-saveButton.addEventListener('click', () => {
-	timeList.addItem(stopwatch.times);
-	timeList.print();
-});
-
-let resetListButton = document.getElementById('resetList');
-resetListButton.addEventListener('click', () => {
-	timeList.clear();
-	timeList.print();
-});
+//aplikacja
+ReactDOM.render(<App/>, document.getElementById('app'));
