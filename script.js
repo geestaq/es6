@@ -1,134 +1,70 @@
 class App extends React.Component {
-	render() {
-		return (
-			<Stopwatch/>
-		);
-	}
-}
-
-class Stopwatch extends React.Component {
-	constructor(props) {
-		super(props);
+	constructor() {
+		super();
 		this.state = {
-			runing: false,
-			times: {
-				minutes: 3,
-				seconds: 55,
-				miliseconds: 0
-			},
-			time: null
+			searchText: '',
+			users: []
 		};
-		//referencja do obiektu TimeList
-		this.child = React.createRef();
 	}
-	save(time) {
-		this.setState({
-			time //time: time
-		});
+
+	onChangeHandle(event) {
+		this.setState({searchText: event.target.value});
 	}
-	reset(e) {
-		this.setState({
-			times: {
-				minutes: 0,
-				seconds: 0,
-				miliseconds: 0
-			}
-		});
+
+	onSubmit(event) {
+		event.preventDefault();
+		const {searchText} = this.state;
+		const url = `https://api.github.com/search/users?q=${searchText}`;
+		fetch(url)
+		.then(response => response.json())
+		.then(responseJson => this.setState({users: responseJson.items}));
 	}
-	start(e) {
-		if (!this.state.running) {
-			this.setState({
-				running: true
-			});
-			this.watch = setInterval(() => this.step(), 10);
-		}
-	}
-	stop(e) {
-		if(this.state.running) {
-			clearInterval(this.watch);
-			this.setState({
-				running: false
-			});
-		}
-	}
-	step() {
-	    if (!this.state.running) return;
-		let newTick = this.state.times;
-		newTick.miliseconds++;
-	    if (newTick.miliseconds >= 100) {
-	        newTick.seconds += 1;
-	        newTick.miliseconds = 0;
-	    }
-	    if (newTick.seconds >= 60) {
-	        newTick.minutes += 1;
-	        newTick.seconds = 0;
-	    }
-		this.setState({
-			times: newTick
-		});
-	}
-	print() {
-		return `${pad0(this.state.times.minutes)}:${pad0(this.state.times.seconds)}:${pad0(Math.floor(this.state.times.miliseconds))}`;
-	}
-	resetList() {
-		this.child.current.clear();
-	}
+
 	render() {
 		return (
-			<div>
-				<nav className='controls'>
-					<a href='#' className='button' id='start' onClick={this.start.bind(this)}>Start</a>
-					<a href='#' className='button' id='stop' onClick={this.stop.bind(this)}>Stop</a>
-					<a href='#' className='button' id='reset' onClick={this.reset.bind(this)}>Reset</a>
-					<a href='#' className='button' id='save' onClick={() => this.save(this.print())}>Save</a>
-					<a href='#' className='button' id='resetList' onClick={this.resetList.bind(this)}>Reset list</a>
-				</nav>
-				<div className='stopwatch'>{this.print()}</div>
-				<TimeList time={this.state.time} ref={this.child}/>
+			<div className='search-form'>
+				<form onSubmit={event => this.onSubmit(event)}>
+					<label htmlFor="searchText">Wyszukaj użytkownika</label>
+					<input
+						type="text"
+						id="searchText"
+						onChange={event => this.onChangeHandle(event)}
+						value={this.state.searchText}/>
+				</form>
+				<UsersList users={this.state.users}/>
 			</div>
 		);
 	}
 }
 
-class TimeList extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			items: []
-		}
-		//kontekst
-		this.clear = this.clear.bind(this);
-	}
-	componentDidUpdate(prevProps) {
-		if(prevProps.time != this.props.time) {
-			this.setState({
-				items: [...this.state.items, this.props.time]
-			});
+class UsersList extends React.Component {
+	get users() {
+		if(this.props.users.length == 0) {
+			return 'Nie znaleziono';
+		} else {
+			return this.props.users.map(user => <User key={user.id} user={user}/>);
 		}
 	}
-	clear(e) {
-		this.setState({
-			items: []
-		});
-	}
+
 	render() {
 		return (
-			<ul className='results'>
-			{
-				this.state.items.map((item, index) => (<li key={index}>{item}</li>))
-			}
-			</ul>
+			<div className='user-list'>
+				{this.users}
+			</div>
 		);
 	}
 }
 
-function pad0(value) {
-	let result = value.toString();
-	if (result.length < 2) {
-		result = '0' + result;
+class User extends React.Component {
+	render() {
+		return (
+			<div className='user-item'>
+				<img src={this.props.user.avatar_url} style={{maxWidth: '100px'}}/>
+				<a href={this.props.user.html_url} target="_blank">{this.props.user.login}</a>
+			</div>
+		);
 	}
-	return result;
 }
 
 //aplikacja
-ReactDOM.render(<App/>, document.getElementById('app'));
+ReactDOM.render(<App/>, document.getElementById('root'));
